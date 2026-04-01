@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Team7 System Solution - Login</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="logo.png" type="image/png">
+    <meta name="theme-color" content="#3f51b5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body class="bg-light">
+    <div class="login-container">
+        <div class="login-card card">
+            <div class="text-center mb-4">
+                <img src="logo.png" alt="Team7 Logo" style="width: 80px; height: 80px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                <h2>Team7 System Solution</h2>
+                <p class="text-muted">Business Document Management</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group mb-3">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group mb-4">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label for="password" class="mb-0">Password</label>
+                        <a href="#" id="btnForgotPassword" style="font-size: 0.85rem;" tabindex="-1">Forgot Password?</a>
+                    </div>
+                    <input type="password" id="password" class="form-control mt-2" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 p-3 btn-rounded">Login</button>
+            </form>
+            
+            <div class="text-center mt-4">
+                <p>Don't have an account? <a href="#" id="toggleSignup">Sign Up</a></p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px; font-size: 0.85rem; color: #888;">
+            <p style="margin: 0;">App developed by <strong>Vignesh</strong></p>
+            <p style="margin: 0;"><i class="fas fa-phone-alt" style="font-size: 0.8rem;"></i> Contact: 9360039283</p>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module" src="js/firebase.js"></script>
+    <script type="module" src="js/auth.js"></script>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/919360039283" target="_blank" class="whatsapp-fab" title="Contact Developer on WhatsApp">
+        <svg viewBox="0 0 24 24" width="30" height="30" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 21.821c-1.673 0-3.313-.448-4.757-1.295l-.34-.2-3.535.927.944-3.447-.22-.349a9.855 9.855 0 01-1.503-5.266c0-5.419 4.411-9.832 9.832-9.832 5.418 0 9.829 4.413 9.829 9.832 0 5.42-4.411 9.83-9.83 9.83H12zm0-21.821C5.372 0 0 5.373 0 12c0 2.125.553 4.192 1.604 6.01L.031 24l6.136-1.61C7.949 23.385 9.944 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+    </a>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(reg => {
+                    console.log('SW Registered', reg);
+                }).catch(err => console.log('SW Failed', err));
+            });
+        }
+    </script>
+</body>
+</html>

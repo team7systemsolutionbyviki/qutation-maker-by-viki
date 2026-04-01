@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Team7 System Solution</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header class="app-header">
+        <a href="dashboard.html" class="btn-icon"><i class="fas fa-arrow-left"></i></a>
+        <h1>Settings</h1>
+    </header>
+
+    <div class="container mt-3 pb-5">
+        
+        <div class="settings-section">
+            <div class="settings-section-title">Account</div>
+            <div class="settings-list">
+                <a href="#" class="settings-item">
+                    <i class="fas fa-user"></i>
+                    <span class="title">Profile</span>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </a>
+                <a href="business.html" class="settings-item">
+                    <i class="fas fa-building"></i>
+                    <span class="title">Business Info</span>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </a>
+                <a href="#" class="settings-item text-danger" id="btnLogoutSettings">
+                    <i class="fas fa-sign-out-alt text-danger"></i>
+                    <span class="title">Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-section-title">Document Settings</div>
+            <div class="settings-list">
+                <a href="#" class="settings-item doc-setting-btn" data-type="quotation">
+                    <i class="fas fa-wrench"></i>
+                    <span class="title">Quotation Settings</span>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </a>
+                <a href="#" class="settings-item doc-setting-btn" data-type="invoice">
+                    <i class="fas fa-wrench"></i>
+                    <span class="title">Invoice Settings</span>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </a>
+                <a href="#" class="settings-item doc-setting-btn" data-type="purchase_order">
+                    <i class="fas fa-wrench"></i>
+                    <span class="title">Purchase Order Settings</span>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </a>
+                <a href="#" class="settings-item doc-setting-btn" data-type="proforma">
+                    <i class="fas fa-wrench"></i>
+                    <span class="title">Proforma Invoice Settings</span>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </a>
+                <a href="#" class="settings-item doc-setting-btn" data-type="delivery_note">
+                    <i class="fas fa-wrench"></i>
+                    <span class="title">Delivery Note Settings</span>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </a>
+                <a href="#" class="settings-item doc-setting-btn" data-type="receipt">
+                    <i class="fas fa-wrench"></i>
+                    <span class="title">Receipt Settings</span>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </a>
+                <a href="#" class="settings-item modal-trigger-btn" data-target="columnsModal">
+                    <i class="fas fa-columns"></i>
+                    <span class="title">Column Heading (GST, HSN, Other Charges)</span>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </a>
+                <a href="#" class="settings-item modal-trigger-btn" data-target="currencyModal">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span class="title">Date & Currency settings</span>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </a>
+                <a href="#" class="settings-item modal-trigger-btn" data-target="reportsModal">
+                    <i class="fas fa-chart-bar"></i>
+                    <span class="title">Download Reports & Statements</span>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </a>
+                <a href="#" class="settings-item modal-trigger-btn" data-target="templateModal">
+                    <i class="fas fa-pager"></i>
+                    <span class="title">Header Footer Template</span>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </a>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Modal for Document Settings -->
+    <div id="docSettingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="docSettingsModalTitle">Document Settings</h3>
+                <span class="modal-close" id="closeDocSettingsModal">&times;</span>
+            </div>
+            <form id="docSettingsForm">
+                <input type="hidden" id="docType">
+                <div class="form-group">
+                    <label>Default Terms & Conditions</label>
+                    <textarea id="docTerms" class="form-control" rows="5" placeholder="Enter default terms..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mt-3" id="btnSaveDocSettings" style="font-weight:bold;">Save Settings</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Columns Modal -->
+    <div id="columnsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Column Heading Settings</h3>
+                <span class="modal-close" onclick="document.getElementById('columnsModal').style.display='none'">&times;</span>
+            </div>
+            <form id="columnsForm">
+                <div class="form-group" style="display:flex; align-items:center;">
+                    <input type="checkbox" id="colGst" checked style="width:20px; height:20px; margin-right:10px;">
+                    <label style="margin:0;">Enable Tax/GST Column</label>
+                </div>
+                <div class="form-group" style="display:flex; align-items:center;">
+                    <input type="checkbox" id="colHsn" checked style="width:20px; height:20px; margin-right:10px;">
+                    <label style="margin:0;">Enable HSN/SAC Column</label>
+                </div>
+                <div class="form-group" style="display:flex; align-items:center;">
+                    <input type="checkbox" id="colOther" checked style="width:20px; height:20px; margin-right:10px;">
+                    <label style="margin:0;">Enable Other Charges</label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mt-3" style="font-weight:bold;">Save Columns</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Currency Modal -->
+    <div id="currencyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Date & Currency Settings</h3>
+                <span class="modal-close" onclick="document.getElementById('currencyModal').style.display='none'">&times;</span>
+            </div>
+            <form id="currencyForm">
+                <div class="form-group">
+                    <label>Currency Symbol</label>
+                    <select id="currSymbol" class="form-control">
+                        <option value="₹">₹ (INR)</option>
+                        <option value="$">$ (USD)</option>
+                        <option value="£">£ (GBP)</option>
+                        <option value="€">€ (EUR)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date Format</label>
+                    <select id="dateFormat" class="form-control">
+                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mt-3" style="font-weight:bold;">Save Preferences</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reports Modal -->
+    <div id="reportsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Download Reports</h3>
+                <span class="modal-close" onclick="document.getElementById('reportsModal').style.display='none'">&times;</span>
+            </div>
+            <form id="reportsForm">
+                <div class="form-group">
+                    <label>Report Type</label>
+                    <select id="reportType" class="form-control">
+                        <option value="invoices">Invoices</option>
+                        <option value="quotations">Quotations</option>
+                        <option value="purchase_orders">Purchase Orders</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <div>
+                        <label>From Date</label>
+                        <input type="date" id="reportFrom" class="form-control" required>
+                    </div>
+                    <div>
+                        <label>To Date</label>
+                        <input type="date" id="reportTo" class="form-control" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mt-3" style="font-weight:bold;"><i class="fas fa-download"></i> Download CSV</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Template Modal -->
+    <div id="templateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Header & Footer Template</h3>
+                <span class="modal-close" onclick="document.getElementById('templateModal').style.display='none'">&times;</span>
+            </div>
+            <form id="templateForm">
+                <div class="form-group">
+                    <label>Custom Header Text</label>
+                    <textarea id="headerText" class="form-control" rows="2" placeholder="Displays at the top..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Custom Footer Text</label>
+                    <textarea id="footerText" class="form-control" rows="3" placeholder="Displays at the bottom..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mt-3" style="font-weight:bold;">Save Template</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="js/firebase.js"></script>
+    <script type="module" src="js/app.js"></script>
+    <script type="module">
+        import { auth, db, doc, getDoc, setDoc, signOut, getDocs, query, collection, where } from './js/firebase.js';
+        import { showToast, showLoader, hideLoader, currentUser } from './js/app.js';
+        
+        document.getElementById('btnLogoutSettings').addEventListener('click', async (e) => {
+            e.preventDefault();
+            if(confirm('Are you sure you want to logout?')) {
+                await signOut(auth);
+                window.location.href = 'index.html';
+            }
+        });
+
+        const docSettingsModal = document.getElementById('docSettingsModal');
+        const closeDocSettingsModal = document.getElementById('closeDocSettingsModal');
+        const docSettingsForm = document.getElementById('docSettingsForm');
+        let settingsData = {};
+
+        auth.onAuthStateChanged(async (user) => {
+            if(user) {
+               showLoader();
+               try {
+                   const snap = await getDoc(doc(db, "doc_settings", user.uid));
+                   if(snap.exists()) {
+                       settingsData = snap.data();
+                       
+                       // Populate columns
+                       if(settingsData.colGst !== undefined) document.getElementById('colGst').checked = settingsData.colGst;
+                       if(settingsData.colHsn !== undefined) document.getElementById('colHsn').checked = settingsData.colHsn;
+                       if(settingsData.colOther !== undefined) document.getElementById('colOther').checked = settingsData.colOther;
+                       
+                       // Populate currency
+                       if(settingsData.currSymbol) document.getElementById('currSymbol').value = settingsData.currSymbol;
+                       if(settingsData.dateFormat) document.getElementById('dateFormat').value = settingsData.dateFormat;
+                       
+                       // Populate template
+                       if(settingsData.headerText) document.getElementById('headerText').value = settingsData.headerText;
+                       if(settingsData.footerText) document.getElementById('footerText').value = settingsData.footerText;
+                   }
+               } catch(e) { console.error("Error loading settings:", e); }
+               hideLoader();
+            }
+        });
+
+        document.querySelectorAll('.doc-setting-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const type = btn.getAttribute('data-type');
+                const title = btn.querySelector('.title').textContent;
+                
+                document.getElementById('docType').value = type;
+                document.getElementById('docSettingsModalTitle').textContent = title;
+                document.getElementById('docTerms').value = settingsData[type] || '';
+                
+                docSettingsModal.style.display = 'flex';
+            });
+        });
+
+        closeDocSettingsModal.addEventListener('click', () => {
+             docSettingsModal.style.display = 'none';
+        });
+
+        docSettingsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const type = document.getElementById('docType').value;
+            const terms = document.getElementById('docTerms').value;
+            settingsData[type] = terms;
+            settingsData.userId = currentUser.uid;
+            await saveSettingsObj("Settings saved processing");
+            docSettingsModal.style.display = 'none';
+        });
+
+        // Other modal toggle logic
+        document.querySelectorAll('.modal-trigger-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = btn.getAttribute('data-target');
+                document.getElementById(target).style.display = 'flex';
+            });
+        });
+
+        // Common Save func
+        async function saveSettingsObj(msg) {
+            showLoader();
+            try {
+                await setDoc(doc(db, "doc_settings", currentUser.uid), settingsData);
+                showToast(msg);
+            } catch(e) { showToast("Error saving", true); }
+            finally { hideLoader(); }
+        }
+
+        // Columns Save
+        document.getElementById('columnsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            settingsData.colGst = document.getElementById('colGst').checked;
+            settingsData.colHsn = document.getElementById('colHsn').checked;
+            settingsData.colOther = document.getElementById('colOther').checked;
+            await saveSettingsObj("Column settings saved!");
+            document.getElementById('columnsModal').style.display='none';
+        });
+
+        // Currency Save
+        document.getElementById('currencyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            settingsData.currSymbol = document.getElementById('currSymbol').value;
+            settingsData.dateFormat = document.getElementById('dateFormat').value;
+            await saveSettingsObj("Currency preferences saved!");
+            document.getElementById('currencyModal').style.display='none';
+        });
+
+        // Template Save
+        document.getElementById('templateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            settingsData.headerText = document.getElementById('headerText').value;
+            settingsData.footerText = document.getElementById('footerText').value;
+            await saveSettingsObj("Header/Footer Templates saved!");
+            document.getElementById('templateModal').style.display='none';
+        });
+
+        // Reports Download
+        document.getElementById('reportsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const type = document.getElementById('reportType').value;
+            const fromD = document.getElementById('reportFrom').value;
+            const toD = document.getElementById('reportTo').value;
+            
+            showLoader();
+            try {
+                const q = query(collection(db, type), where("userId", "==", currentUser.uid));
+                const snap = await getDocs(q);
+                let csv = "ID,Date,Number,Customer,Total\n";
+                snap.forEach(d => {
+                    const row = d.data();
+                    const dt = row.date || row.createdAt || "";
+                    if(dt >= fromD && dt <= toD) {
+                        const no = row.invoiceNo || row.quotationNo || row.poNo || "";
+                        csv += `"${d.id}","${dt}","${no}","${row.customerName || row.supplierName || ''}",${row.grandTotal || row.total || 0}\n`;
+                    }
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${type}_report_${fromD}_to_${toD}.csv`;
+                a.click();
+                
+                showToast("Report downloaded successfully!");
+                document.getElementById('reportsModal').style.display = 'none';
+            } catch(err) {
+                showToast("Error generating report", true);
+            } finally {
+                hideLoader();
+            }
+        });
+    </script>
+</body>
+</html>

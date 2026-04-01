@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Info - Team7 System Solution</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .logo-preview {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: var(--light-bg);
+            cursor: pointer;
+        }
+        .logo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: none;
+        }
+        .logo-preview span {
+            color: var(--text-muted);
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .module-section { display: none; }
+        .active-section { display: block; }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <a href="dashboard.html" class="btn-icon"><i class="fas fa-arrow-left"></i></a>
+        <h1>Business Profiles</h1>
+        <button class="btn-icon" id="btnToggleView"><i class="fas fa-plus" id="toggleIcon"></i></button>
+    </header>
+
+    <div id="listSection" class="module-section active-section">
+        <div class="container" id="businessList">
+            <div class="text-center text-muted mt-4 p-4">Loading business profiles...</div>
+        </div>
+        <button class="fab" id="fabAdd" title="Add Business Profile"><i class="fas fa-plus"></i></button>
+    </div>
+
+    <div id="formSection" class="module-section">
+        <div class="container mt-3">
+            <div class="card">
+                <form id="businessForm">
+                    <input type="hidden" id="profileId">
+                    <div class="text-center">
+                        <div class="logo-preview" id="logoContainer" title="Click to upload logo">
+                            <span id="logoPlaceholder"><i class="fas fa-camera fa-2x mb-2"></i><br>Upload Logo</span>
+                            <img id="logoImg" src="" alt="Business Logo">
+                        </div>
+                        <input type="file" id="logoUpload" accept="image/*" class="d-none">
+                        <input type="hidden" id="logoUrl">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Business Name *</label>
+                        <input type="text" id="bizName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Owner Name</label>
+                        <input type="text" id="bizOwner" class="form-control">
+                    </div>
+                    <div class="form-group" style="display:flex; gap:10px;">
+                        <div style="flex:1;">
+                            <label>Phone *</label>
+                            <input type="tel" id="bizPhone" class="form-control" required>
+                        </div>
+                        <div style="flex:1;">
+                            <label>Email</label>
+                            <input type="email" id="bizEmail" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Business Address *</label>
+                        <textarea id="bizAddress" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group" style="display:flex; gap:10px;">
+                        <div style="flex:1;">
+                            <label>GST Number</label>
+                            <input type="text" id="bizGST" class="form-control">
+                        </div>
+                        <div style="flex:1;">
+                            <label>UPI ID (For QR Code)</label>
+                            <input type="text" id="bizUPI" class="form-control" placeholder="e.g. name@okicici">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Signature Text (e.g. For My Company)</label>
+                        <input type="text" id="bizSignature" class="form-control">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 mt-4 p-3" id="btnSaveBusiness">Save Profile</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/firebase.js"></script>
+    <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/business.js"></script>
+</body>
+</html>

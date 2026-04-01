@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sales Reports - Team7 System Solution</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        .report-summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .summary-card { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); text-align: center; border-bottom: 3px solid var(--primary-color); }
+        .summary-value { font-size: 1.25rem; font-weight: bold; margin-top: 5px; color: var(--text-color); }
+        .date-filters { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-end; flex-wrap: wrap; }
+        .filter-group { flex: 1; min-width: 120px; }
+        @media (max-width: 768px) { .filter-group { width: 100%; min-width: 100%; } }
+        table th, table td { padding: 8px; border-bottom: 1px solid #eee; }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <a href="dashboard.html" class="btn-icon"><i class="fas fa-arrow-left"></i></a>
+        <h1>Sales Reports</h1>
+        <button class="btn-icon" id="btnExportExcel" title="Export to Excel"><i class="fas fa-file-excel"></i></button>
+    </header>
+
+    <div class="container mt-3 pb-5">
+        <div class="card bg-white p-3 mb-3">
+            <h4 class="mb-3" style="font-size: 16px;">Filter by Date</h4>
+            <div class="date-filters">
+                <div class="filter-group">
+                    <label style="font-size: 12px; color: #666; font-weight: bold;">Start Date</label>
+                    <input type="date" id="startDate" class="form-control">
+                </div>
+                <div class="filter-group">
+                    <label style="font-size: 12px; color: #666; font-weight: bold;">End Date</label>
+                    <input type="date" id="endDate" class="form-control">
+                </div>
+                <div class="filter-group mt-2">
+                    <button class="btn btn-primary w-100 p-2" id="btnGenerate" style="height: 42px;"><i class="fas fa-filter"></i> Generate Filter</button>
+                </div>
+            </div>
+            <div style="display: flex; gap: 5px; margin-top: 10px;">
+                <button class="btn btn-sm btn-outline" id="btnThisMonth" style="flex:1;">This Month</button>
+                <button class="btn btn-sm btn-outline" id="btnAllTime" style="flex:1;">All Time</button>
+            </div>
+        </div>
+
+        <div class="report-summary-grid">
+            <div class="summary-card" style="border-bottom-color: #28a745;">
+                <div style="color: #666; font-size: 0.85rem; font-weight: bold;"><i class="fas fa-file-invoice-dollar"></i> Total Sales (Inv)</div>
+                <div class="summary-value" id="totalSales">₹0.00</div>
+            </div>
+            <div class="summary-card" style="border-bottom-color: #007bff;">
+                <div style="color: #666; font-size: 0.85rem; font-weight: bold;"><i class="fas fa-file-invoice"></i> Quotes Issued</div>
+                <div class="summary-value" id="totalQuotes">0</div>
+            </div>
+            <div class="summary-card" style="border-bottom-color: #ffc107;" title="Credit marked in Credit Sales module">
+                <div style="color: #666; font-size: 0.85rem; font-weight: bold;"><i class="fas fa-hand-holding-usd"></i> Credits Generated</div>
+                <div class="summary-value text-warning" id="totalCredit">₹0.00</div>
+            </div>
+            <div class="summary-card" style="border-bottom-color: #dc3545;" title="Total actual incoming receipts in Receipts module">
+                <div style="color: #666; font-size: 0.85rem; font-weight: bold;"><i class="fas fa-money-bill-wave"></i> Total Receipts</div>
+                <div class="summary-value text-danger" id="totalReceipts">₹0.00</div>
+            </div>
+            <div class="summary-card" style="border-bottom-color: #8B4513;">
+                <div style="color: #666; font-size: 0.85rem; font-weight: bold;"><i class="fas fa-wallet"></i> Total Expenses</div>
+                <div class="summary-value" id="totalTotalExpenses" style="color: #8B4513;">₹0.00</div>
+            </div>
+        </div>
+
+        <h3 class="mt-4 mb-2" style="font-size: 1.1rem; border-bottom: 2px solid #ddd; padding-bottom: 5px;">Invoice Logs (Sales)</h3>
+        <div class="card p-0" style="overflow-x: auto; margin-bottom: 30px;">
+            <table style="width: 100%; border-collapse: collapse; min-width: 400px; font-size: 13px;" id="reportTable">
+                <thead>
+                    <tr style="background:#f1f3f5; color:#495057;">
+                        <th style="text-align: left;">Date</th>
+                        <th style="text-align: left;">Invoice / Ref No</th>
+                        <th style="text-align: left;">Customer</th>
+                        <th style="text-align: right;">Amount (₹)</th>
+                    </tr>
+                </thead>
+                <tbody id="reportTableBody">
+                    <tr><td colspan="4" class="text-center text-muted p-4">Select dates and generate report</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="mt-4 mb-2" style="font-size: 1.1rem; border-bottom: 2px solid #8B4513; padding-bottom: 5px; color: #8B4513;">Expense Logs</h3>
+        <div class="card p-0" style="overflow-x: auto; margin-bottom: 30px;">
+            <table style="width: 100%; border-collapse: collapse; min-width: 400px; font-size: 13px;" id="expenseReportTable">
+                <thead>
+                    <tr style="background:#fdf4f0; color:#495057;">
+                        <th style="text-align: left;">Date</th>
+                        <th style="text-align: left;">Category</th>
+                        <th style="text-align: left;">Description</th>
+                        <th style="text-align: right;">Amount (₹)</th>
+                    </tr>
+                </thead>
+                <tbody id="expenseReportTableBody">
+                    <tr><td colspan="4" class="text-center text-muted p-4">Select dates and generate report</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script type="module" src="js/firebase.js"></script>
+    <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/report.js"></script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoices - Team7 System Solution</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        .module-section { display: none; }
+        .active-section { display: block; }
+        .product-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
+        @media (max-width: 768px) {
+            .product-row { grid-template-columns: 1fr; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <a href="dashboard.html" class="btn-icon"><i class="fas fa-arrow-left"></i></a>
+        <h1 id="pageTitle">Invoices</h1>
+        <button class="btn-icon" id="btnToggleView"><i class="fas fa-plus" id="toggleIcon"></i></button>
+    </header>
+
+    <!-- LIST SECTION -->
+    <div id="listSection" class="module-section active-section">
+        <div class="search-container">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search by Invoice# or Customer...">
+            </div>
+        </div>
+        <div class="container" id="invoiceList">
+            <div class="text-center text-muted mt-4 p-4">Loading invoices...</div>
+        </div>
+        <button class="fab" id="fabAdd" title="Create Invoice">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <!-- MAKE SECTION -->
+    <div id="makeSection" class="module-section container mt-3">
+        <form id="invoiceForm" class="card">
+            <div class="form-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div>
+                    <label>Invoice No *</label>
+                    <input type="text" id="iNumber" class="form-control" readonly>
+                </div>
+                <div>
+                    <label>Invoice Date *</label>
+                    <input type="date" id="iDate" class="form-control" required>
+                </div>
+                <div>
+                    <label>PO Number</label>
+                    <input type="text" id="poNumber" class="form-control" placeholder="Optional">
+                </div>
+                <div>
+                    <label>Due Date</label>
+                    <input type="date" id="dueDate" class="form-control">
+                </div>
+            </div>
+
+            <hr class="mb-3 mt-3">
+
+            <div class="form-group">
+                <label>Select Customer *</label>
+                <div style="display:flex; gap:10px;">
+                    <select id="customerSelect" class="form-control" required>
+                        <option value="">-- Choose Customer --</option>
+                    </select>
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='customers.html'"><i class="fas fa-user-plus"></i></button>
+                </div>
+            </div>
+            
+            <div id="customerDetailsBox" class="p-3 bg-light mb-4" style="border-radius:var(--radius-md); display:none;">
+                <h5 id="cdName"></h5>
+                <p class="mb-0 text-muted" id="cdPhone"></p>
+                <p class="mb-0 text-muted" id="cdAddress"></p>
+                <p class="mb-0 text-muted" id="cdGST"></p>
+            </div>
+
+            <hr class="mb-3 mt-3">
+
+            <div class="d-flex justify-content-between mb-2">
+                <h4>Items</h4>
+                <button type="button" class="btn btn-sm btn-outline" id="btnAddItemRow"><i class="fas fa-plus"></i> Add item</button>
+            </div>
+
+            <div id="itemsContainer" class="mb-4"></div>
+
+            <hr class="mb-3 mt-3">
+
+            <div class="form-group mb-3" style="display:flex; justify-content:space-between; align-items:center; background:#f9f9f9; padding: 10px; border-radius: 5px;">
+                <label class="mb-0 font-weight-bold" style="color:var(--primary-color);">Enable GST Calculation?</label>
+                <input type="checkbox" id="chkEnableGst" checked style="transform: scale(1.5);" onchange="calculateTotals()">
+            </div>
+
+            <div class="form-group" style="display:flex; justify-content:space-between; align-items:center;">
+                <label class="mb-0">Other Charges (₹)</label>
+                <input type="number" step="0.01" id="otherCharges" class="form-control" style="width: 150px;" value="0" oninput="calculateTotals()">
+            </div>
+
+            <div class="bg-light p-3" style="border-radius: var(--radius-md); text-align: right;">
+                <p>Subtotal: <span id="lblSubtotal">₹0.00</span></p>
+                <p>Total GST: <span id="lblTax">₹0.00</span></p>
+                <p>Other Charges: <span id="lblOther">₹0.00</span></p>
+                <h3 class="text-primary mt-2">Grand Total: <span id="lblGrandTotal">₹0.00</span></h3>
+            </div>
+
+            <div class="form-group mt-3" style="display:flex; justify-content:space-between; align-items:center; background:#e8f4fd; padding:10px; border-radius:var(--radius-md);">
+                <label class="mb-0 text-primary font-weight-bold">Amount Paid (₹)</label>
+                <input type="number" step="0.01" id="amountPaid" class="form-control" style="width: 150px;" value="0">
+            </div>
+
+            <!-- Cash Calculator (Family & Friends) -->
+            <div class="card mt-4" style="border: 2px dashed var(--accent-color); background: rgba(52, 152, 219, 0.05); padding: 15px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px;">
+                    <h4 style="margin:0; color:var(--accent-color);"><i class="fas fa-calculator mr-2"></i> Cash Calculator</h4>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" id="chkFamilyFriends" style="transform: scale(1.2);" onchange="updateFamilyFriendsMode()">
+                        <label for="chkFamilyFriends" class="mb-0 text-muted small" style="cursor:pointer;">Family & Friends</label>
+                    </div>
+                </div>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                    <div class="form-group mb-0">
+                        <label class="small font-weight-bold">Amount Given (₹)</label>
+                        <input type="number" id="calcAmountGiven" class="form-control" placeholder="Cash Received" oninput="calculateReturn()">
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="small font-weight-bold">Balance to Return</label>
+                        <div id="lblReturnAmount" style="font-size: 1.5rem; font-weight: bold; color: var(--danger-color); padding: 5px 0;">₹0.00</div>
+                    </div>
+                </div>
+                
+                <div id="familyFriendsNote" class="mt-2 text-primary small" style="display:none; font-style: italic;">
+                    <i class="fas fa-heart mr-1"></i> Special transaction for family/friends.
+                </div>
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Terms and Conditions</label>
+                <textarea id="iTerms" class="form-control" rows="3">1. Goods once sold will not be taken back.\n2. Interest @ 18% p.a. will be charged if payment is delayed.</textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-3 p-3 text-white font-weight-bold">Save changes & Generate Invoice</button>
+        </form>
+    </div>
+
+    <!-- Hidden Template for PDF -->
+    <div id="pdfTemplate" style="display:none;"></div>
+
+    <script type="module" src="js/firebase.js"></script>
+    <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/invoice.js"></script>
+</body>
+</html>

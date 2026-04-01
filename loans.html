@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loans - Team7 System Solution</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        .module-section { display: none; }
+        .active-section { display: block; }
+        .loan-status { font-size: 0.8rem; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
+        .status-pending { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
+        .status-paid { background: #f6ffed; color: #52c41b; border: 1px solid #b7eb8f; }
+        .return-btn { background: var(--secondary-color); color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+        .return-btn:hover { background: #c2185b; }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <a href="dashboard.html" class="btn-icon"><i class="fas fa-arrow-left"></i></a>
+        <h1 id="pageTitle">Family & Friends Loans</h1>
+        <button class="btn-icon" id="btnToggleView"><i class="fas fa-plus" id="toggleIcon"></i></button>
+    </header>
+
+    <!-- LIST SECTION -->
+    <div id="listSection" class="module-section active-section container mt-3">
+        <div class="stats-row mb-4" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+            <div class="card p-3 text-center" style="border-left: 4px solid var(--accent-color);">
+                <div class="text-muted small">Total Given</div>
+                <div id="lblTotalGiven" class="h4 mb-0 font-weight-bold" style="color:var(--accent-color);">₹0.00</div>
+            </div>
+            <div class="card p-3 text-center" style="border-left: 4px solid var(--success-color);">
+                <div class="text-muted small">Total Returned</div>
+                <div id="lblTotalReturned" class="h4 mb-0 font-weight-bold" style="color:var(--success-color);">₹0.00</div>
+            </div>
+            <div class="card p-3 text-center" style="border-left: 4px solid var(--danger-color);">
+                <div class="text-muted small">Balance</div>
+                <div id="lblTotalBalance" class="h4 mb-0 font-weight-bold" style="color:var(--danger-color);">₹0.00</div>
+            </div>
+        </div>
+
+        <div class="search-container mb-3 p-0">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search by name or description...">
+            </div>
+        </div>
+
+        <div id="loanList">
+            <div class="text-center text-muted p-4">Loading loans...</div>
+        </div>
+        
+        <button class="fab" id="fabAdd" title="Record Loan">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <!-- MAKE SECTION (Record Loan) -->
+    <div id="makeSection" class="module-section container mt-3">
+        <form id="loanForm" class="card">
+            <h3 class="mb-4">New Loan record</h3>
+            <div class="form-group mb-3">
+                <label>Date *</label>
+                <input type="date" id="lDate" class="form-control" required>
+            </div>
+            <div class="form-group mb-3">
+                <label>Recipient Name (Friend/Family) *</label>
+                <input type="text" id="lName" class="form-control" placeholder="E.g. Murali, Ravi" required>
+            </div>
+            <div class="form-group mb-3">
+                <label>Amount Given (₹) *</label>
+                <input type="number" step="0.01" id="lAmount" class="form-control" placeholder="0.00" required>
+            </div>
+            <div class="form-group mb-3">
+                <label>Already Returned (if any) (₹)</label>
+                <input type="number" step="0.01" id="lReturned" class="form-control" value="0">
+            </div>
+            <div class="form-group mb-4">
+                <label>Description / Notes</label>
+                <textarea id="lDescription" class="form-control" rows="3" placeholder="E.g. Emergency medical help."></textarea>
+            </div>
+            <button type="submit" id="btnSaveLoan" class="btn btn-primary w-100 p-3 text-white font-weight-bold">Save Loan Record</button>
+            <button type="button" class="btn btn-outline w-100 mt-2 p-2" onclick="toggleMode(false)">Cancel</button>
+        </form>
+    </div>
+
+    <!-- PDF TEMPLATE (HIDDEN) -->
+    <div id="pdfTemplate" style="display:none;"></div>
+
+    <!-- REPAYMENT HISTORY MODAL -->
+    <div id="repayHistoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Repayment History</h3>
+                <span class="modal-close" id="closeHistoryModal">&times;</span>
+            </div>
+            <div id="historyName" class="font-weight-bold mb-2"></div>
+            <div id="historyList" class="p-2"></div>
+            <button type="button" class="btn btn-outline w-100 mt-3 p-2" id="btnHistoryClose">Close</button>
+        </div>
+    </div>
+
+    <!-- REPAYMENT MODAL -->
+    <div id="repayModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Record Return Amount</h3>
+                <span class="modal-close" id="closeRepayModal">&times;</span>
+            </div>
+            <form id="repayForm">
+                <input type="hidden" id="repayLoanId">
+                <div class="form-group mb-3">
+                    <label>Loan To</label>
+                    <div id="repayName" class="font-weight-bold mb-1"></div>
+                    <div id="repayBalance" class="text-danger small">Pending: ₹0.00</div>
+                </div>
+                <div class="form-group mb-3">
+                    <label>Amount Returned (₹) *</label>
+                    <input type="number" step="0.01" id="repayAmount" class="form-control" required>
+                </div>
+                <div class="form-group mb-4">
+                    <label>Return Date *</label>
+                    <input type="date" id="repayDate" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-success w-100 p-3 font-weight-bold">Update Return Status</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="js/firebase.js"></script>
+    <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/loans.js"></script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proforma Invoices - Team7 System Solution</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        .module-section {
+            display: none;
+        }
+
+        .active-section {
+            display: block;
+        }
+
+        .product-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="app-header">
+        <a href="dashboard.html" class="btn-icon"><i class="fas fa-arrow-left"></i></a>
+        <h1 id="pageTitle">Proforma Invoices</h1>
+        <button class="btn-icon" id="btnToggleView"><i class="fas fa-plus" id="toggleIcon"></i></button>
+    </header>
+
+    <div id="listSection" class="module-section active-section">
+        <div class="search-container">
+            <div class="search-bar"><i class="fas fa-search"></i><input type="text" id="searchInput"
+                    placeholder="Search..."></div>
+        </div>
+        <div class="container" id="proformaList">
+            <div class="text-center text-muted mt-4 p-4">Loading Proformas...</div>
+        </div>
+        <button class="fab" id="fabAdd" title="Create Proforma"><i class="fas fa-plus"></i></button>
+    </div>
+
+    <!-- Hidden PDF Template -->
+    <div id="pdfTemplate" style="display:none;"></div>
+
+    <script type="module" src="js/firebase.js"></script>
+    <script type="module" src="js/app.js"></script>
+    <script type="module">
+        import { auth, db, collection, getDocs, doc, deleteDoc, query, where, orderBy } from './js/firebase.js';
+        import { showLoader, hideLoader, formatCurrency, currentUser, businessData } from './js/app.js';
+        let items = [];
+        let customers = [];
+
+        document.getElementById('btnToggleView').addEventListener('click', () => { window.location.href = 'quotation.html?action=make'; });
+        document.getElementById('fabAdd').addEventListener('click', () => { window.location.href = 'quotation.html?action=make'; });
+
+        async function loadProformas() {
+            if(!currentUser) return;
+            showLoader();
+            try {
+                const qC = query(collection(db, "customers"), where("userId", "==", currentUser.uid));
+                const snapC = await getDocs(qC);
+                customers = [];
+                snapC.forEach(d => customers.push({ id: d.id, ...d.data() }));
+
+                const q = query(collection(db, "quotations"), where("userId", "==", currentUser.uid));
+                const snap = await getDocs(q);
+                items = [];
+                snap.forEach(d => { items.push({ id: d.id, ...d.data() }); });
+                items.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+                render(items);
+            } catch (err) {
+                console.error("Error loading Proformas:", err);
+                document.getElementById('proformaList').innerHTML = '<div class="text-center text-danger p-4">Failed to load Proforma Invoices.</div>';
+            } finally {
+                hideLoader();
+            }
+        }
+
+        function render(data) {
+            const list = document.getElementById('proformaList'); list.innerHTML = '';
+            if (data.length === 0) {
+                list.innerHTML = '<div class="text-center text-muted p-4">You don\'t have any proforma invoice. Create a Quotation first.</div>';
+                return;
+            }
+            data.forEach(q => {
+                const div = document.createElement('div'); div.className = 'list-item';
+                div.innerHTML = `
+                    <div class="list-item-content">
+                        <h4 class="text-info mb-1">${q.quotationNo.replace('QT-', 'PI-')} <span class="text-muted fs-6" style="float:right">${q.date}</span></h4>
+                        <p class="font-weight-bold mb-1">${q.customerName}</p>
+                        <p><span class="text-success" style="font-weight:600;font-size:1.1rem">${formatCurrency(q.grandTotal)}</span></p>
+                    </div>
+                    <div class="list-item-actions ml-2" style="flex-direction:column; align-items:flex-end;">
+                        <button class="btn btn-sm btn-outline mb-2 text-primary" onclick="window.downloadPI('${q.id}')"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="btn btn-sm btn-outline text-danger border-0" onclick="window.deletePI('${q.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        window.deletePI = async (id) => {
+            if (confirm("Delete this?")) {
+                await deleteDoc(doc(db, "quotations", id));
+                loadProformas();
+            }
+        };
+
+        const numberToWords = (num) => {
+            num = Math.floor(num);
+            const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
+            const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            if (num === 0) return 'Zero Rupees Only/-';
+            if (num.toString().length > 9) return num + ' Rupees Only/-';
+            let n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+            if (!n) return ''; let str = '';
+            str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'Crore ' : '';
+            str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'Lakh ' : '';
+            str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'Thousand ' : '';
+            str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'Hundred ' : '';
+            str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) : '';
+            return str.trim() + ' Rupees Only/-';
+        };
+
+        window.downloadPI = (id) => {
+            const qData = items.find(x => x.id === id);
+            const cData = customers.find(x => x.id === qData.customerId);
+
+            const template = document.getElementById('pdfTemplate');
+            template.style.display = 'block';
+
+            let bzName = businessData ? businessData.name : 'Your Business Name';
+            let bzOwner = businessData && businessData.owner ? businessData.owner : '';
+            let bzAddress = businessData && businessData.address ? businessData.address : '';
+            let bzPhone = businessData && businessData.phone ? businessData.phone : '';
+            let bzEmail = businessData && businessData.email ? businessData.email : '';
+
+            let itemsHtml = '';
+            qData.items.forEach((it, i) => {
+                itemsHtml += `<tr style="border-bottom: 1px solid #ddd;">
+                    <td style="padding: 10px 5px; vertical-align: top;">${i + 1}</td>
+                    <td style="padding: 10px 5px; vertical-align: top;">
+                        <strong style="font-size: 11px;">${it.name.replace(`(GST ${it.gstRate}%)`, '')}</strong>
+                        <div style="font-size: 10px; color: #444; margin-top: 2px;">${it.description || ''}</div>
+                    </td>
+                    <td style="padding: 10px 5px; text-align: right; vertical-align: top;">
+                        ${it.qty}<br><span style="font-size: 9px;">${it.unit || 'Nos'}</span>
+                    </td>
+                    <td style="padding: 10px 5px; text-align: right; vertical-align: top;">₹${it.price.toFixed(2)}</td>
+                    <td style="padding: 10px 5px; text-align: right; vertical-align: top;">₹${it.total.toFixed(2)}</td>
+                </tr>`;
+            });
+
+            let amountWords = numberToWords(qData.grandTotal);
+            let upiId = 'N/A';
+            let qrHtml = '';
+            let signHtml = '';
+
+            if (businessData && businessData.upi) {
+                upiId = businessData.upi;
+                qrHtml = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(bzName)}" crossorigin="anonymous" style="width:70px;height:70px;">`;
+            } else {
+                qrHtml = `<div style="width:70px;height:70px;background:#f3f3f3;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;font-size:8px;color:#999;">QR Code</div>`;
+            }
+
+            if (businessData && businessData.signature) {
+                signHtml = `<img src="${businessData.signature}" crossorigin="anonymous" style="max-height: 40px;">`;
+            } else if (businessData && businessData.logoUrl) {
+                signHtml = `<img src="${businessData.logoUrl}" crossorigin="anonymous" style="max-height: 40px;">`;
+            } else {
+                signHtml = `<div style="height:40px;"></div>`;
+            }
+
+            const layoutHtml = `
+                <div style="width: 750px; background:#fff; padding: 20px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10px; color: #000; box-sizing: border-box; text-align: left;">
+                    
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 30px; text-align: left;">
+                        <tr>
+                            <td valign="top" width="55%">
+                                <h2 style="margin:0; font-size:16px;">${bzName.toUpperCase()}</h2>
+                                <div style="margin-top:2px;">${bzOwner}</div>
+                                <div style="margin-top:2px; max-width:250px;">${bzAddress}</div>
+                                <div style="margin-top:2px;">${bzPhone} ${bzEmail}</div>
+                            </td>
+                            <td valign="top" width="45%" align="right">
+                                <h1 style="margin:0; font-size:24px; color:#333; letter-spacing: 1px;">PROFORMA INVOICE</h1>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 25px; text-align: left;">
+                        <tr>
+                            <td valign="top" width="35%">
+                                <strong style="font-size: 9px;">BILL TO</strong>
+                                <div style="font-weight: bold; margin-top:3px; font-size:11px;">${qData.customerName}</div>
+                                <div style="margin-top:2px;">${cData ? cData.address || '' : ''}</div>
+                                <div style="margin-top:2px;">${qData.customerPhone}</div>
+                            </td>
+                            <td valign="top" width="35%">
+                                <strong style="font-size: 9px;">SHIP TO</strong>
+                                <div style="font-weight: bold; margin-top:3px; font-size:11px;">${qData.customerName}</div>
+                            </td>
+                            <td valign="top" width="30%" align="right">
+                                <table width="100%" cellpadding="2" cellspacing="0" style="font-size: 10px; font-weight: bold; text-align: right;">
+                                    <tr><td align="right" style="padding-right:10px;">Proforma#</td><td align="right">${qData.quotationNo.replace('QT-', 'PI-')}</td></tr>
+                                    <tr><td align="right" style="padding-right:10px;">Date:</td><td align="right">${qData.date}</td></tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <div style="margin-bottom: 15px; border-top: 2px solid #000; border-bottom: 2px solid #000;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: left;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: left; padding: 6px 5px; width: 5%;">#</th>
+                                    <th style="text-align: left; padding: 6px 5px; width: 45%;">DESCRIPTION</th>
+                                    <th style="text-align: right; padding: 6px 5px; width: 15%;">QTY</th>
+                                    <th style="text-align: right; padding: 6px 5px; width: 15%;">PRICE</th>
+                                    <th style="text-align: right; padding: 6px 5px; width: 20%;">TOTAL</th>
+                                </tr>
+                            </thead>
+                            <tbody style="border-top: 1px solid #000; border-bottom: 1px solid #000;">
+                                ${itemsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 40px; text-align: left;">
+                        <tr>
+                            <td valign="top" width="60%">
+                                <strong style="font-size: 9px;">AMOUNT IN WORDS:</strong>
+                                <div style="margin-top: 3px;">${amountWords}</div>
+                            </td>
+                            <td valign="top" width="40%">
+                                <table style="width: 100%; font-size: 11px; text-align: right;">
+                                    ${qData.isGstEnabled !== false ? `
+                                    <tr>
+                                        <td style="padding: 4px 0; text-align: left; color:#555;">Subtotal</td>
+                                        <td style="text-align: right; padding: 4px 0;">₹${(qData.subTotal || 0).toFixed(2)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 0; text-align: left; color:#555;">GST</td>
+                                        <td style="text-align: right; padding: 4px 0;">₹${(qData.totalTax || 0).toFixed(2)}</td>
+                                    </tr>
+                                    ${(qData.otherCharges > 0) ? `
+                                    <tr>
+                                        <td style="padding: 4px 0; text-align: left; color:#555;">Other Charges</td>
+                                        <td style="text-align: right; padding: 4px 0;">₹${qData.otherCharges.toFixed(2)}</td>
+                                    </tr>
+                                    ` : ''}
+                                    ` : `
+                                    ${(qData.otherCharges > 0) ? `
+                                    <tr>
+                                        <td style="padding: 4px 0; text-align: left; color:#555;">Other Charges</td>
+                                        <td style="text-align: right; padding: 4px 0;">₹${qData.otherCharges.toFixed(2)}</td>
+                                    </tr>
+                                    ` : ''}
+                                    `}
+                                    <tr style="border-top: 2px solid #000; border-bottom: 2px solid #000; font-weight: bold;">
+                                        <td style="padding: 6px 0; text-align: left;">GRAND TOTAL</td>
+                                        <td style="text-align: right; padding: 6px 0;">₹${qData.grandTotal.toFixed(2)}</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table width="100%" cellpadding="0" cellspacing="0" style="text-align: left;">
+                        <tr>
+                            <td valign="top" width="50%">
+                                <strong style="font-size: 9px;">Payment Instructions</strong>
+                                <div style="margin-top: 3px;">UPI ID: ${upiId}</div>
+                                <div style="margin-top: 5px;">
+                                    ${qrHtml}
+                                </div>
+                            </td>
+                            <td valign="bottom" width="50%" align="right">
+                                <div style="font-weight: bold; font-size: 11px;">For, ${bzName.toUpperCase()}</div>
+                                <div style="margin-top: 10px; min-height:40px;">
+                                    ${signHtml}
+                                </div>
+                                <div style="font-size: 8px; margin-top: 5px; color:#555;">AUTHORIZED SIGNATURE</div>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    ${qData.terms ? `<div style="margin-top:30px; border-top:1px dashed #ccc; padding-top:10px;"><strong style="font-size:9px;">Terms & Conditions:</strong><br><span style="font-size:9px; white-space:pre-line;">${qData.terms}</span></div>` : ''}
+                </div>
+            `;
+
+            var opt = {
+                margin: [0.5, 0.5, 0.5, 0.5],
+                filename: `Proforma_${qData.quotationNo.replace('QT-', 'PI-')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(layoutHtml).save().then(() => {
+                // done
+            });
+        };
+
+        auth.onAuthStateChanged(u => { if (u) { loadProformas(); } });
+    </script>
+</body>
+
+</html>

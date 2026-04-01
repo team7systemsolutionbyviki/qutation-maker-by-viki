@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard - Team7 System Solution</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="logo.png" type="image/png">
+    <script>
+        // Force unregister all service workers and clear caches
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+        }
+        // Force cache clearing for this session
+        caches.keys().then(function(names) {
+            for (let name of names) caches.delete(name);
+        });
+    </script>
+</head>
+
+<body>
+    <header class="app-header">
+        <h1>Dashboard</h1>
+        <button class="btn-icon" id="btnLogout" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+    </header>
+
+    <div class="container mt-3">
+        <div class="card bg-primary text-white mb-4"
+            style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); color: white;">
+            <h2 class="mb-2">Welcome</h2>
+            <p class="mb-0 fs-5"></p>
+        </div>
+
+        <h3 class="mb-3 text-muted" style="font-size: 1.2rem; text-transform: uppercase;">MY TOOLS AND LOANS</h3>
+        <div class="dashboard-grid mb-4">
+            <a href="loans.html" class="dashboard-card" style="border: 1px solid #e91e63;">
+                <i class="fas fa-handshake" style="color: #e91e63; font-size: 2.2rem;"></i>
+                <span class="font-weight-bold" style="margin-top: 10px;">Loans Tracking</span>
+                <span style="font-size: 0.75rem; color: #888;">Friends & Family</span>
+            </a>
+            <a href="quotation.html?action=make" class="dashboard-card">
+                <i class="fas fa-file-invoice text-success"></i>
+                <span>Make Quotation</span>
+            </a>
+            <a href="quotation.html?action=list" class="dashboard-card">
+                <i class="fas fa-list-alt text-success"></i>
+                <span>Quotation List</span>
+            </a>
+            <a href="invoice.html?action=make" class="dashboard-card">
+                <i class="fas fa-file-invoice-dollar text-primary"></i>
+                <span>Make Invoice</span>
+            </a>
+            <a href="invoice.html?action=list" class="dashboard-card">
+                <i class="fas fa-receipt text-primary"></i>
+                <span>Invoice List</span>
+            </a>
+            <a href="purchase_order.html" class="dashboard-card">
+                <i class="fas fa-shopping-cart text-warning"></i>
+                <span>Purchase Order</span>
+            </a>
+            <a href="proforma.html" class="dashboard-card">
+                <i class="fas fa-file-contract text-info"></i>
+                <span>Proforma Invoice</span>
+            </a>
+            <a href="delivery_note.html" class="dashboard-card">
+                <i class="fas fa-truck text-secondary"></i>
+                <span>Delivery Note</span>
+            </a>
+            <a href="receipt.html" class="dashboard-card">
+                <i class="fas fa-money-bill-wave text-danger"></i>
+                <span>Receipt</span>
+            </a>
+            <a href="expenses.html" class="dashboard-card">
+                <i class="fas fa-wallet" style="color: #8B4513;"></i>
+                <span>Expenses</span>
+            </a>
+            <a href="credit_sales.html" class="dashboard-card">
+                <i class="fas fa-hand-holding-usd text-primary"></i>
+                <span>Credit Sales</span>
+            </a>
+            <a href="report.html" class="dashboard-card" style="border: 1px solid #17a2b8;">
+                <i class="fas fa-chart-line text-info"></i>
+                <span class="font-weight-bold" style="color: var(--text-primary);">Analytics & Reports</span>
+            </a>
+        </div>
+
+        <h3 class="mb-3 text-muted" style="font-size: 1rem; text-transform: uppercase;">Manage Entities</h3>
+        <div class="dashboard-grid mb-4">
+            <a href="business.html" class="dashboard-card">
+                <i class="fas fa-building text-primary"></i>
+                <span>Business Info</span>
+            </a>
+            <a href="customers.html" class="dashboard-card">
+                <i class="fas fa-users text-info"></i>
+                <span>Customers</span>
+            </a>
+            <a href="products.html" class="dashboard-card">
+                <i class="fas fa-box-open text-warning"></i>
+                <span>Products</span>
+            </a>
+            <a href="terms.html" class="dashboard-card">
+                <i class="fas fa-file-signature text-secondary"></i>
+                <span>Terms & Conditions</span>
+            </a>
+        </div>
+
+        <h3 class="mb-3 text-muted" style="font-size: 1rem; text-transform: uppercase;">System</h3>
+        <div class="dashboard-grid mb-4">
+            <a href="settings.html" class="dashboard-card">
+                <i class="fas fa-cogs text-dark"></i>
+                <span>Settings</span>
+            </a>
+
+        </div>
+    </div>
+
+    <script type="module" src="js/firebase.js"></script>
+    <script type="module" src="js/app.js"></script>
+</body>
+
+</html>

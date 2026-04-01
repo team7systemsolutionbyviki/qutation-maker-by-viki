@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Expenses - Team7 System Solution</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header class="app-header">
+        <a href="dashboard.html" class="btn-icon"><i class="fas fa-arrow-left"></i></a>
+        <h1 id="pageTitle">Expenses</h1>
+        <button class="btn-icon" id="btnToggleView"><i class="fas fa-plus"></i></button>
+    </header>
+
+    <div class="container mt-3">
+        <!-- List View -->
+        <div id="listSection" class="active-section">
+            <div class="card mb-3">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search expenses...">
+            </div>
+            
+            <div class="stats-row mb-3" style="display: flex; gap: 10px;">
+                <div class="card" style="flex:1; padding:15px; text-align:center;">
+                    <div class="text-muted small mb-1">Total Expenses</div>
+                    <div id="totalExpenses" class="h4 mb-0 font-weight-bold" style="color: #8B4513;">₹0.00</div>
+                </div>
+            </div>
+
+            <div id="expenseList" class="list-container">
+                <!-- Data here -->
+            </div>
+        </div>
+
+        <!-- Add/Edit View -->
+        <div id="makeSection">
+            <form id="expenseForm">
+                <input type="hidden" id="editingId">
+                <div class="card mb-3">
+                    <div class="mb-3">
+                        <label>Expense Date *</label>
+                        <input type="date" id="eDate" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Category *</label>
+                        <select id="eCategory" class="form-control" required>
+                            <option value="">Select Category</option>
+                            <option value="Rent">Rent</option>
+                            <option value="Electricity">Electricity</option>
+                            <option value="Salary">Salary</option>
+                            <option value="Travel">Travel</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Supplies">Supplies</option>
+                            <option value="Internet/Phone">Internet/Phone</option>
+                            <option value="Repairs">Repairs</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Title/Description *</label>
+                        <input type="text" id="eTitle" class="form-control" placeholder="E.g. Office Rent for March" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Amount *</label>
+                        <input type="number" step="0.01" id="eAmount" class="form-control" placeholder="Amount (₹)" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Payment Method</label>
+                        <select id="ePaymentMethod" class="form-control">
+                            <option value="Cash">Cash</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="UPI">UPI</option>
+                            <option value="Card">Card</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Notes</label>
+                        <textarea id="eNotes" class="form-control" rows="2" placeholder="Optional notes..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-3" style="background-color: #8B4513; border:none;">
+                        <i class="fas fa-save mr-2"></i> Save Expense
+                    </button>
+                    <button type="button" class="btn btn-outline w-100 mt-2 py-2" onclick="toggleMode(false)">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Floating Add Button -->
+    <button class="fab" id="fabAdd" style="background-color: #8B4513;">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <div id="loader" class="loader-overlay" style="display: none;">
+        <div class="loader"></div>
+    </div>
+
+    <script type="module" src="js/expenses.js"></script>
+</body>
+</html>
